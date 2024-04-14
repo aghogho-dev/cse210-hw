@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.Common;
-using System.Globalization;
-using System.Runtime.CompilerServices;
+using System.Linq;
+
+
+// Week 1 - Tic-Tac-Toe
+// Aghogho Monorien 
 
 namespace Unit01
 {
@@ -19,7 +20,55 @@ namespace Unit01
 
             List<List<string>> board = CreateGameBoard(rows, cols);
             DisplayGameBoard(board);
+            
+            int whichPlayer = 1;
+            bool isWin = false; 
+            bool isDraw = false;
 
+            while (true)
+            {
+                if (whichPlayer == 1)
+                {
+                    Console.Write("x's turn to choose a square (1-9): ");
+                    
+                    int move = int.Parse(Console.ReadLine());
+
+                    bool valid = Player(board, move, rows, cols, "x");
+
+                    isWin = CheckWin(board, "x", rows, cols);
+
+                    if (!isWin) isDraw = CheckDraw(board);
+                    
+                    if (valid) whichPlayer = 2;
+                    else Console.WriteLine("This is an illegal move.");
+                }
+
+                else if (whichPlayer == 2)
+                {
+                    Console.Write("o's turn to choose a square (1-9): ");
+
+                    int move = int.Parse(Console.ReadLine());
+
+                    bool valid = Player(board, move, rows, cols, "o");
+
+                    isWin = CheckWin(board, "o", rows, cols);
+                    
+                    if (!isWin) isDraw = CheckDraw(board);
+
+                    if (valid) whichPlayer = 1;
+                    else Console.WriteLine("This is an illegal move.");
+                }
+                
+                DisplayGameBoard(board);
+
+                if (isWin || isDraw) break;
+            }
+
+            if (whichPlayer == 1 && isWin) Console.WriteLine("Player 2 wins.");
+            else if (whichPlayer == 2 && isWin) Console.WriteLine("Player 1 wins.");
+            else Console.WriteLine("The game ended in a draw.");
+
+            Console.WriteLine("Good game. Thanks for playing.\n");
         }
 
         static List<List<string>> CreateGameBoard(int rows, int cols)
@@ -40,12 +89,13 @@ namespace Unit01
 
                 gameBoard.Add(row);
             }
-
             return gameBoard;
         }
 
         static void DisplayGameBoard(List<List<string>> gameBoard)
         {
+            Console.WriteLine();
+
             int rowCount = 0;
 
             foreach (var row in gameBoard)
@@ -69,6 +119,79 @@ namespace Unit01
                 
                 rowCount += 1;
             }
+            Console.WriteLine();
+        }
+
+        static bool Player(List<List<string>> gameBoard, int move, int rows, int cols, string playerSign)
+        {
+            bool validMove = false;
+            int countMove = 0;
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    countMove += 1;
+
+                    if (countMove == move) 
+                    {
+                        string checkMove = gameBoard[i][j];
+                        int number;
+                        validMove = int.TryParse(checkMove, out number);
+
+                        if (validMove) gameBoard[i][j] = playerSign;
+                    }
+                        
+                }
+            }
+            return validMove;
+        }
+
+        static bool CheckWin(List<List<string>> gameBoard, string target, int rows, int cols)
+        {
+            bool rowMatch = false;
+
+            foreach (List<string> row in gameBoard) 
+            {
+                bool isRowMatched = row.All(cell => cell == target);
+
+                if (isRowMatched) 
+                {
+                    rowMatch = isRowMatched;
+                    break;
+                }
+            }
+
+            bool colMatch = false;
+
+            for (int i = 0; i < cols; i++)
+            {
+                bool isColMatched = gameBoard.All(row => row[i] == target);
+
+                if (isColMatched)
+                {
+                    colMatch = isColMatched;
+                    break;
+                }
+            }
+
+            bool mainDiag = true, antiDiag = true;
+            
+
+            for (int i = 0; i < rows; i++)
+            {
+                if (gameBoard[i][i] != target) mainDiag = false;
+
+                if (gameBoard[i][rows - 1 - i] != target) antiDiag = false;
+            }
+
+            return rowMatch || colMatch || mainDiag || antiDiag;
+
+        }
+
+        static bool CheckDraw(List<List<string>> gameBoard)
+        {
+            return !gameBoard.SelectMany(row => row).Any(cell => int.TryParse(cell, out _));
         }
     }
 }
