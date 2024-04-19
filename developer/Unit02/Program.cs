@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Unit02.Game;
 
 namespace Unit02
 {
@@ -6,7 +6,8 @@ namespace Unit02
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            HiLo hilo = new HiLo();
+            hilo.Play();
         }
     }
 }
